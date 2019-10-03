@@ -1,4 +1,5 @@
 import java.util.*;
+import java.io.*;
 import edu.duke.*;
 
 public class VigenereBreaker {
@@ -33,12 +34,19 @@ public class VigenereBreaker {
         FileResource frMessage = new FileResource();
         String encrypted = frMessage.asString();
         
-        FileResource frDictionary = new FileResource();
-        HashSet<String> dictionary = readDictionary(frDictionary);
+        HashMap<String, HashSet<String>> languages = new HashMap<String, HashSet<String>>();
         
-        String message = breakForLanguage(encrypted, dictionary);
+        DirectoryResource dr = new DirectoryResource();
+        for (File f: dr.selectedFiles()) {
+            FileResource frDictionary = new FileResource(f);
+            HashSet<String> dictionary = readDictionary(frDictionary);
+            languages.put(f.getName(), dictionary);
+        }
         
-        System.out.println(message.substring(0, 80));
+        breakForAllLangs(encrypted, languages);
+        //String message = breakForLanguage(encrypted, dictionary);
+        
+        //System.out.println(message.substring(0, 80));
     }
     
     public HashSet<String> readDictionary(FileResource fr){
@@ -105,5 +113,25 @@ public class VigenereBreaker {
         char key = Collections.max(hm.entrySet(), Map.Entry.comparingByValue()).getKey();
         //System.out.println("Most common character is: " + key);
         return key;
+    }
+    
+    public void breakForAllLangs(String encrypted, HashMap<String, HashSet<String>> languages) {
+        int mostWords = 0;
+        String messageLanguage = "";
+        
+        for (String language: languages.keySet()) {
+            HashSet<String> dictionary = languages.get(language);
+            String tryMessage = breakForLanguage(encrypted, dictionary);
+            int numWords = countWords(tryMessage, dictionary);
+            if (numWords > mostWords) {
+                messageLanguage = language;
+                mostWords = numWords;
+            }
+        }
+        
+        System.out.println("Message is in " + messageLanguage);
+        System.out.println("First line(s): ");
+        String message = breakForLanguage(encrypted, languages.get(messageLanguage));
+        System.out.println(message.substring(0, 80));
     }
 }
