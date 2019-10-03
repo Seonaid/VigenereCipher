@@ -30,16 +30,12 @@ public class VigenereBreaker {
     public void breakVigenere () {
         //WRITE YOUR CODE HERE
         
-        FileResource fr = new FileResource();
-        String encrypted = fr.asString();
+        FileResource frMessage = new FileResource();
+        String encrypted = frMessage.asString();
         
-        FileResource fr2 = new FileResource();
-        HashSet<String> dictionary = readDictionary(fr2);
+        FileResource frDictionary = new FileResource();
+        HashSet<String> dictionary = readDictionary(frDictionary);
         
-        //int[] key = tryKeyLength(encrypted, 4, 'e');
-        
-        // VigenereCipher vc = new VigenereCipher(key);
-        // String message = vc.decrypt(encrypted);
         String message = breakForLanguage(encrypted, dictionary);
         
         System.out.println(message.substring(0, 80));
@@ -72,8 +68,9 @@ public class VigenereBreaker {
         int mostWords = 0;
         int keyLength = 1;
         int[] key = new int[1];
+        char testChar = mostCommonCharIn(dictionary);
         for (int k = 1; k < 101; k++) {
-            int[] currentKey = tryKeyLength(encrypted, k, 'e');
+            int[] currentKey = tryKeyLength(encrypted, k, testChar);
             VigenereCipher vc = new VigenereCipher(currentKey);
             String message = vc.decrypt(encrypted);
             int numWords = countWords(message, dictionary);
@@ -84,15 +81,29 @@ public class VigenereBreaker {
             }
         }
         
-        // key = tryKeyLength(encrypted, 5, 'e');
-        // VigenereCipher vc = new VigenereCipher(key);
-        // String message = vc.decrypt(encrypted);        
-        // mostWords = countWords(message, dictionary);
-        
         System.out.println("Key length = " + keyLength);
         System.out.println("Number of words = " + mostWords);
+        System.out.println("Most common character = " + testChar);
         VigenereCipher vc = new VigenereCipher(key);
         String message = vc.decrypt(encrypted);
         return message;
+    }
+    
+    public char mostCommonCharIn(HashSet<String> dictionary) {
+        HashMap<Character, Integer> hm = new HashMap<Character, Integer>();
+        
+        for (String word : dictionary) {
+            for (char c : word.toLowerCase().toCharArray()) {
+                if (hm.keySet().contains(c)) {
+                    hm.put(c, hm.get(c)+1);
+                } else {
+                    hm.put(c, 1);
+                }
+            } 
+        }
+
+        char key = Collections.max(hm.entrySet(), Map.Entry.comparingByValue()).getKey();
+        //System.out.println("Most common character is: " + key);
+        return key;
     }
 }

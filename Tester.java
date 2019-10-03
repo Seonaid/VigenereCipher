@@ -147,7 +147,43 @@ public class Tester {
         System.out.println("\nAll tests run");            
     }
     
-    public void testBreakForLanguage() {
+    public void testMostCommonCharIn() {
+        System.out.println("\nTesting mostCommonCharIn");
+        VigenereBreaker vb = new VigenereBreaker();         
         
+        // Case: English dictionary
+        System.out.println("Counting English");
+        FileResource fr = new FileResource("dictionaries/English");
+        HashSet<String> dictionary = vb.readDictionary(fr);
+        if (vb.mostCommonCharIn(dictionary) != 'e') {
+            System.out.println("Error in English");
+        }
+        
+        // Case: Portuguese should give 'a'
+        System.out.println("Counting Portuguese");        
+        fr = new FileResource("dictionaries/Portuguese");
+        dictionary = vb.readDictionary(fr);        
+        if (vb.mostCommonCharIn(dictionary) != 'a') {
+            System.out.println("Error in Portuguese");
+        }        
+        
+        // Case: Italian should give 'a'
+        System.out.println("Counting Italian");        
+        fr = new FileResource("dictionaries/Italian");
+        dictionary = vb.readDictionary(fr);        
+        if (vb.mostCommonCharIn(dictionary) != 'a') {
+            System.out.println("Error in Italian");
+        }  
+        
+        
+        // Case: German should give 'e'... non-Latin letters do not crash
+        System.out.println("Counting German");        
+        fr = new FileResource("dictionaries/German");
+        dictionary = vb.readDictionary(fr);        
+        if (vb.mostCommonCharIn(dictionary) != 'e') {
+            System.out.println("Error in German");
+        }           
+        
+        System.out.println("\nAll tests run");    
     }
 }
