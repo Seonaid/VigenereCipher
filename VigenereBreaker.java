@@ -32,12 +32,67 @@ public class VigenereBreaker {
         
         FileResource fr = new FileResource();
         String encrypted = fr.asString();
-        int[] key = tryKeyLength(encrypted, 4, 'e');
         
-        VigenereCipher vc = new VigenereCipher(key);
-        String message = vc.decrypt(encrypted);
+        FileResource fr2 = new FileResource();
+        HashSet<String> dictionary = readDictionary(fr2);
+        
+        //int[] key = tryKeyLength(encrypted, 4, 'e');
+        
+        // VigenereCipher vc = new VigenereCipher(key);
+        // String message = vc.decrypt(encrypted);
+        String message = breakForLanguage(encrypted, dictionary);
         
         System.out.println(message.substring(0, 80));
     }
     
+    public HashSet<String> readDictionary(FileResource fr){
+        HashSet<String> dictionary = new HashSet<String>();
+        
+        for (String line: fr.lines()) {
+            dictionary.add(line.toLowerCase());
+        }
+        
+        //System.out.println(dictionary.size());
+        return dictionary;
+    }
+    
+    public int countWords(String message, HashSet<String> dictionary){
+        int numWords = 0;
+        
+        for (String word: message.split("\\W")) {
+            if (dictionary.contains(word.toLowerCase())) {
+                numWords += 1;
+            }
+        }
+        
+        return numWords;
+    }
+    
+    public String breakForLanguage(String encrypted, HashSet<String> dictionary) {
+        int mostWords = 0;
+        int keyLength = 1;
+        int[] key = new int[1];
+        for (int k = 1; k < 101; k++) {
+            int[] currentKey = tryKeyLength(encrypted, k, 'e');
+            VigenereCipher vc = new VigenereCipher(currentKey);
+            String message = vc.decrypt(encrypted);
+            int numWords = countWords(message, dictionary);
+            if (numWords > mostWords) {
+                mostWords = numWords;
+                keyLength = k;
+                key = currentKey;
+            }
+        }
+        
+        // key = tryKeyLength(encrypted, 5, 'e');
+        // VigenereCipher vc = new VigenereCipher(key);
+        // String message = vc.decrypt(encrypted);        
+        // mostWords = countWords(message, dictionary);
+        
+        System.out.println("Key length = " + keyLength);
+        System.out.println("Number of words = " + mostWords);
+        VigenereCipher vc = new VigenereCipher(key);
+        String message = vc.decrypt(encrypted);
+        return message;
+    }
 }

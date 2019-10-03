@@ -1,4 +1,6 @@
 import edu.duke.*;
+import java.util.*;
+
 /**
  * Write a description of Tester here.
  * 
@@ -90,7 +92,7 @@ public class Tester {
         System.out.println("All tests run");
     }
     
-    public void testTryKeyLength(){
+    public void testTryKeyLength(int length){
         System.out.println("\nTesting tryKeyLength");
         // Case sliceString("abcdefghijklm", 0, 3) should return "adgjm"
         VigenereBreaker vb = new VigenereBreaker();
@@ -100,11 +102,52 @@ public class Tester {
         
         FileResource fr = new FileResource();
         String encrypted = fr.asString();
-        int[] key = vb.tryKeyLength(encrypted, 4, 'e');
-        for (int i=0; i < 4; i++) {
+        int[] key = vb.tryKeyLength(encrypted, length, 'e');
+        for (int i=0; i < length; i++) {
             System.out.print(key[i] + " ");
         }
-
+        
+        VigenereCipher vc = new VigenereCipher(key);
+        String message = vc.decrypt(encrypted);
+        FileResource fr2 = new FileResource();
+        HashSet<String> dictionary = vb.readDictionary(fr2);
+        
+        System.out.println(vb.countWords(message, dictionary));
+        
+        System.out.println(message.substring(0, 80));
+        
         System.out.println("\nAll tests run");        
+    }
+    
+    public void testParameterKeyLength() {
+        testTryKeyLength(38);
+    }
+    
+    public void testReadDictionary(){
+        FileResource fr = new FileResource();
+        VigenereBreaker vb = new VigenereBreaker();
+        
+        vb.readDictionary(fr);
+    }
+    
+    public void testCountWords(){
+        System.out.println("\nTesting countWords");
+        VigenereBreaker vb = new VigenereBreaker();
+        
+
+        FileResource fr = new FileResource();       
+        HashSet<String> dictionary = vb.readDictionary(fr);
+        
+        String message = "hello";
+        
+        if (vb.countWords(message, dictionary) != 1) {
+            System.out.println("Cannot count solitary word");
+        }
+        
+        System.out.println("\nAll tests run");            
+    }
+    
+    public void testBreakForLanguage() {
+        
     }
 }
